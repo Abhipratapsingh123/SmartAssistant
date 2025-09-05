@@ -1,6 +1,6 @@
 # ThinkMate – AI Agent with Tools  
-(assets/Img1.png)   
-(assets/Img2.png)  
+!(assets/img1.png)   
+!(assets/Img2.png)  
 
 ThinkMate is an **AI-powered chatbot** built with **LangChain, Google Gemini, and Streamlit**.  
 It acts as a **multi-tool assistant** capable of answering queries, fetching real-time data, and maintaining chat history.  
