@@ -60,7 +60,9 @@ def convert(base_currency_value: int, conversion_rate: float) -> float:
 
 @tool
 def get_holiday(date: str, country: str = "IN") -> dict:
-    """Fetch holiday info for a given date in YYYY-MM-DD format."""
+    """Fetches holiday information for a given date and country.
+    - date must be in format YYYY-MM-DD (e.g., "2025-10-02").
+    - country must be a 2-letter ISO code (e.g., "IN" for India)."""
     year, month, day = date.split("-")
     url = f"https://holidays.abstractapi.com/v1/?api_key={api_holiday_key}&country={country}&year={year}&month={month}&day={day}"
     response = requests.get(url)
