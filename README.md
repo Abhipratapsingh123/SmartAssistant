@@ -30,4 +30,5 @@ It acts as a **multi-tool assistant** capable of answering queries, fetching rea
   - [ExchangeRate API](https://www.exchangerate-api.com/) 💱  
   - [Abstract API (Holidays)](https://www.abstractapi.com/holidays-api) 📅  
 
-
+## Streamlit Website
+- [Link](https://planmate.streamlit.app/)
