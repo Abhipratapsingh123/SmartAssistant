@@ -6,16 +6,14 @@ from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain import hub
 import requests
-import os
-
+import io
+import sys
 
 # ------------------ Load ENV ------------------
-
 api_key_weather = st.secrets["API_KEY_WEATHER"]
 api_key_currency_converter = st.secrets["API_KEY_CURRENCY_CONVERTER"]
 api_holiday_key = st.secrets["API_HOLIDAY_KEY"]
 api_key = st.secrets["GOOGLE_API_KEY"]
-
 
 # ------------------ Tools ------------------
 search_tool = DuckDuckGoSearchRun()
@@ -60,25 +58,17 @@ def convert(base_currency_value: int, conversion_rate: float) -> float:
     """Convert currency value using conversion rate."""
     return base_currency_value * conversion_rate
 
-
 @tool
 def get_holiday(date: str, country: str = "IN") -> dict:
-    """
-    Fetches holiday information for a given date and country.
-    - date must be in format YYYY-MM-DD (e.g., "2025-10-02").
-    - country must be a 2-letter ISO code (e.g., "IN" for India).
-    """
+    """Fetch holiday info for a given date in YYYY-MM-DD format."""
     year, month, day = date.split("-")
     url = f"https://holidays.abstractapi.com/v1/?api_key={api_holiday_key}&country={country}&year={year}&month={month}&day={day}"
     response = requests.get(url)
-    
     if response.status_code != 200:
         return {"error": f"HTTP {response.status_code}"}
-    
     data = response.json()
     if not data:
         return {"message": f"No holiday on {date} in {country}"}
-    
     return {
         "date": data[0].get("date"),
         "name": data[0].get("name"),
@@ -86,54 +76,71 @@ def get_holiday(date: str, country: str = "IN") -> dict:
         "location": data[0].get("location"),
     }
 
-
-
 tools = [search_tool, weather_forecast, get_conversion_factor, convert, get_holiday]
 
-
 # ------------------ Agent Setup ------------------
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash",google_api_key=api_key)
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key)
 prompt = hub.pull("hwchase17/openai-tools-agent")
 agent = create_tool_calling_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-
-
 # ------------------ Streamlit UI ------------------
-st.set_page_config(page_title="AI Agent", layout="wide")
-st.title("AI Agent ")
+st.set_page_config(page_title="Think Mate", layout="wide")
+st.title("🤖 Think Mate - Your Smart AI Assistant")
+
+st.markdown("### ☁️ Weather | 🎉 Holidays | 💱 Currency | 🔎 Search")
+
+# Sidebar
+with st.sidebar:
+    st.header("⚙️ Settings")
+    show_logs = st.checkbox("Show agent thinking process")
+    # Download chat history
+    if st.button("Download Chat History"):
+        chat_text = "\n".join([f"{msg.type}: {msg.content}" for msg in st.session_state.chat_history])
+        st.download_button("Download", chat_text, file_name="chat_history.txt")
 
 # Session state for chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
-        SystemMessage(content="You are a helpful assistant. If anyone asks who made you, say `I am an agent made by Abhi Pratap Singh with some help by Akshat Sharma`."),
+        SystemMessage(content="You are a helpful assistant. If anyone asks who made you, say `I am an agent made by Abhi Pratap Singh`."),
     ]
 
 # Display previous chat
 for msg in st.session_state.chat_history:
     if isinstance(msg, HumanMessage):
-        with st.chat_message("user"):
+        with st.chat_message("user", avatar="👤"):
             st.write(msg.content)
     elif isinstance(msg, AIMessage):
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar="🤖"):
             st.write(msg.content)
 
 # User input
 if user_input := st.chat_input("Ask me something..."):
     # Add user message
     st.session_state.chat_history.append(HumanMessage(content=user_input))
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="👤"):
         st.write(user_input)
 
+    # Capture agent logs
+    log_capture = io.StringIO()
+    sys.stdout = log_capture
 
     # Call agent
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar="🤖"):
         with st.spinner("Thinking..."):
             result = agent_executor.invoke({"input": user_input, "chat_history": st.session_state.chat_history})
             ai_response = result.get("output", str(result))
             st.write(ai_response)
 
+    # Reset stdout
+    sys.stdout = sys.__stdout__
 
     # Save AI response
     st.session_state.chat_history.append(AIMessage(content=ai_response))
+
+    # Show captured logs if enabled
+    if show_logs:
+        with st.expander("🔍 Agent Thinking Process"):
+            st.text(log_capture.getvalue())
+
 
