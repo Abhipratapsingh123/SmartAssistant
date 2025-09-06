@@ -88,9 +88,9 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 # ------------------ Streamlit UI ------------------
 st.set_page_config(page_title="Think Mate", layout="wide")
-st.title("🤖 Think Mate - Your Smart AI Assistant")
+st.title("🤖 Think Mate - Smart AI Assistant")
 
-st.markdown("### ☁️ Weather | 🎉 Holidays | 💱 Currency | 🔎 Search")
+st.markdown("### ☁️ Weather | 🎉 Holidays | 💱 Currency Conversion | 🔎Search")
 
 # Sidebar
 with st.sidebar:
@@ -104,7 +104,7 @@ with st.sidebar:
 # Session state for chat history
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
-        SystemMessage(content="You are a helpful assistant. If anyone asks who made you, say `I am an agent made by Abhi Pratap Singh`."),
+        SystemMessage(content="You are a helpful assistant who helps the user to solve their queries. If anyone asks you who made you, say `I am an AI agent made by Abhi Pratap Singh`."),
     ]
 
 # Display previous chat
