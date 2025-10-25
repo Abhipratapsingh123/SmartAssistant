@@ -1,7 +1,8 @@
 streamlit
-langchain
-langchain-community
-langchain-google-genai
+langchain==0.3.27
+langchain-core==0.3.79
+langchain-community==0.0.30
+langchain-google-genai==0.1.1
 requests
 python-dotenv
 duckduckgo-search
