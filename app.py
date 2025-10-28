@@ -9,6 +9,7 @@ import requests
 import io
 import sys
 
+
 # ------------------ Load ENV ------------------
 api_key_weather = st.secrets["API_KEY_WEATHER"]
 api_key_currency_converter = st.secrets["API_KEY_CURRENCY_CONVERTER"]
@@ -19,8 +20,8 @@ api_key = st.secrets["GOOGLE_API_KEY"]
 search_tool = DuckDuckGoSearchRun()
 
 @tool
-def weather_forecast(location: str = 'India', days: int = 7) -> dict:
-    """Fetches the weather forecast for a given location in India (default: 7-day forecast)."""
+def weather_forecast(location: str = 'India', days: int = 3) -> dict:
+    """Fetches the weather forecast for a given location in India (default: 3-day forecast)."""
     location_query = f"{location},IN"
     url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key_weather}&q={location_query}&days={days}&aqi=yes&alerts=yes"
     response = requests.get(url)
