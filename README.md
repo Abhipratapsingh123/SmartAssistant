@@ -10,8 +10,8 @@ It acts as a **multi-tool assistant** capable of answering queries, fetching rea
 
 ##  Features  
 -  **Chatbot with memory** – remembers previous messages for smooth conversations.  
--  **Web Search** – uses DuckDuckGo search to fetch latest information.  
--  **Weather Forecast** – get 7-day forecasts for any Indian city.  
+-  **Web Search** – uses langchain's inbuilt tool "DuckDuckGosearch" to fetch latest information.  
+-  **Weather Forecast** – get 3-day forecasts for any Indian city.  
 - **Currency Conversion** – convert between currencies in real-time.  
 - **Holiday Info** – check holidays for specific dates in India.  
 - **Modern Chat UI** – built with Streamlit’s `st.chat_message`, avatars, and expanders.  
