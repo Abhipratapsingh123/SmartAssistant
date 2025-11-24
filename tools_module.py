@@ -16,6 +16,8 @@ api_holiday_key = st.secrets["API_HOLIDAY_KEY"]
 
 # ------------------ Tools ------------------
 
+
+# tool to fetch real date and time
 @tool
 def current_datetime() -> str:
     """Returns the current system date and time."""
@@ -24,6 +26,7 @@ def current_datetime() -> str:
 
 
 
+# tool to make real time web search
 @tool
 def search_tool(query: str) -> str:
     """
@@ -40,9 +43,13 @@ def search_tool(query: str) -> str:
     result = search_instance.invoke(query)
     return result
 
+
+
+# tool to fetch weather of any location within india and can forecast upto 3 days
 @tool
 def weather_forecast(location: str = 'India', days: int = 3) -> dict:
     """Fetches the weather forecast for a given location in India (default: 3-day forecast).User must enter the city name for this tool."""
+    
     location_query = f"{location},IN"
     url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key_weather}&q={location_query}&days={days}&aqi=yes&alerts=yes"
     response = requests.get(url)
@@ -65,7 +72,7 @@ def weather_forecast(location: str = 'India', days: int = 3) -> dict:
     }
     return forecast
 
-# --- Currency Tool ---
+# tool to fetch live currency rates and convert to any other currency
 @tool
 def convert_currency_amount(amount: float, from_currency: str, to_currency: str) -> float:
     """
@@ -73,10 +80,12 @@ def convert_currency_amount(amount: float, from_currency: str, to_currency: str)
     
     Args:
         amount: The value to be converted (e.g., 1000).
-        from_currency: The 3-letter code of the source currency (e.g., USD, EUR, INR).
-        to_currency: The 3-letter code of the target currency (e.g., USD, EUR, INR).
         
-    Returns: The converted amount as a float, or an error message.
+        from_currency: The 3-letter code of the source currency (e.g., USD, EUR, INR), (if user provide country name instead of code then first convert it to suitable country code.)
+        
+        to_currency: The 3-letter code of the target currency (e.g., USD, EUR, INR), (if user provide country name instead of code then first convert it to suitable country code.)
+        
+    Returns: The converted amount as a float, or if this tool doesnot work then search real currency rate using other tool.
     """
     from_currency = from_currency.upper()
     to_currency = to_currency.upper()
@@ -97,7 +106,7 @@ def convert_currency_amount(amount: float, from_currency: str, to_currency: str)
     return round(converted_amount, 2)
 
 
-# -----------------------------
+# tool to get data about holidays on specific date in India
 
 @tool
 def get_holiday(date: str, country: str = "IN") -> dict:
@@ -134,7 +143,7 @@ def travel_quick_planner(destination_city: str, date: str) -> str:
         
     Returns: A comprehensive summary detailing the weather and any observed holiday.
     """
-    return f"To generate a quick travel summary for {destination_city} on {date}, the agent will now proceed to use the `weather_forecast`.`budget_context`and `get_holiday` tools in sequence."
+    return f"To generate a quick travel summary for {destination_city} on {date}, the agent will now proceed to use the `weather_forecast`(to forecast upto3 days only),`Search tool (if needed),`budget_context`and `get_holiday` tools in sequence."
 
 
 @tool

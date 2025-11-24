@@ -21,6 +21,7 @@ api_key = st.secrets["GOOGLE_API_KEY"]
 
 tools = [current_datetime,search_tool, weather_forecast, convert_currency_amount, get_holiday,budget_context_search, travel_quick_planner]
 
+
 # ------------------ Agent Setup ------------------
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=api_key)
 
@@ -33,7 +34,7 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 # ------------------ Streamlit UI ------------------
 st.set_page_config(page_title="Think Mate", layout="wide")
-st.title("🤖 Think Mate - Advanced AI Agent")
+st.title("🤖 Think Mate - Trip Panning-AI Agent")
 
 st.markdown("### ✈️ **Travel Planning** |💱**Unified Currency** | ☁️ Weather | 🎉 Holidays | 🔎Search")
 
@@ -48,13 +49,13 @@ with st.sidebar:
     # Session state for chat history initialization
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = [
-            SystemMessage(content="You are a helpful and  advanced AI agent who assists users with complex queries by intelligently utilizing your tools. If anyone asks you who made you, say `I am an AI agent made by Abhi Pratap Singh`."),
+            SystemMessage(content="You are a helpful and  advanced AI agent who assists users with  queries by intelligently utilizing your tools. If anyone asks you who made you, say `I am an AI agent made by Abhi Pratap Singh`."),
         ]
     
     # Download chat history
     if st.button("Download Chat History"):
         chat_text = "\n".join([f"{msg.type}: {msg.content}" for msg in st.session_state.chat_history])
-        st.download_button("Download", chat_text, file_name="chat_history.txt")
+        st.download_button("Click here", chat_text, file_name="chat_history.txt")
 
 # Display previous chat
 for msg in st.session_state.chat_history:
