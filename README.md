@@ -31,4 +31,4 @@ It acts as a **multi-tool assistant** capable of answering queries, fetching rea
   - [Abstract API (Holidays)](https://www.abstractapi.com/holidays-api) 📅  
 
 ## Streamlit Website
-- [Link](https://planmate.streamlit.app/)
+- [Link](https://thinkmate.streamlit.app/)
