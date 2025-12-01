@@ -2,6 +2,9 @@
 ![Home Screen](assets/img1.png)  
 ![Chat Example](assets/Img2.png) 
 ![Chat Example](assets/img3.png) 
+![Chat Example](assets/img5.png)
+![Chat Example](assets/img6.png)
+![Chat Example](assets/img7.png)
 
 ThinkMate is an **AI-powered chatbot** built with **LangChain, Google Gemini, and Streamlit**.  
 It acts as a **multi-tool assistant** capable of answering queries, fetching real-time data, and maintaining chat history.  
@@ -13,7 +16,9 @@ It acts as a **multi-tool assistant** capable of answering queries, fetching rea
 -  **Web Search** – uses langchain's inbuilt tool "DuckDuckGosearch" to fetch latest information.  
 -  **Weather Forecast** – get 3-day forecasts for any Indian city.  
 - **Currency Conversion** – convert between currencies in real-time.  
-- **Holiday Info** – check holidays for specific dates in India.  
+- **Holiday Info** – check holidays for specific dates in India.
+- **Nearby Places** - Identifies top restaurants, must-visit tourist attractions, iconic landmarks, and other popular spots around your destination.
+- **Images** - Provides high-quality visuals of the city and key points of interest to help you visualize your trip before you go.
 - **Modern Chat UI** – built with Streamlit’s `st.chat_message`, avatars, and expanders.  
 - **Debugging Logs** – expandable section to see the agent’s “thinking process”.  
 
