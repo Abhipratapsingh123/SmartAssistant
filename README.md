@@ -1,7 +1,7 @@
 # ThinkMate – AI Agent with Tools  
 ![Home Screen](assets/img1.png)  
 ![Chat Example](assets/Img2.png) 
-![Chat Example](assets/img3.png) 
+![Chat Example](assets/img4.png) 
 ![Chat Example](assets/img5.png)
 ![Chat Example](assets/img6.png)
 ![Chat Example](assets/img7.png)
