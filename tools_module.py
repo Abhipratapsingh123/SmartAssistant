@@ -20,7 +20,9 @@ api_holiday_key = st.secrets["API_HOLIDAY_KEY"]
 # tool to fetch real date and time
 @tool
 def current_datetime() -> str:
-    """Returns the current system date and time."""
+    """Returns the current system date and time.
+       Use this tool when the user asks for today's date, time, or current timestamp.
+    """
     now = datetime.now()
     return now.strftime("%A, %B %d, %Y - %I:%M %p")
 
@@ -46,9 +48,10 @@ def search_tool(query: str) -> str:
 
 
 # tool to fetch weather of any location within india and can forecast upto 3 days
+
 @tool
-def weather_forecast(location: str = 'India', days: int = 3) -> dict:
-    """Fetches the weather forecast for a given location in India (default: 3-day forecast).User must enter the city name for this tool."""
+def weather_forecast(location: str = 'India', days: int = 14) -> dict:
+    """Fetches the weather forecast for a given location in India (default: 14-day forecast).User must enter the city name for this tool."""
     
     location_query = f"{location},IN"
     url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key_weather}&q={location_query}&days={days}&aqi=yes&alerts=yes"
@@ -71,6 +74,7 @@ def weather_forecast(location: str = 'India', days: int = 3) -> dict:
         } for day in data["forecast"]["forecastday"]]
     }
     return forecast
+
 
 # tool to fetch live currency rates and convert to any other currency
 @tool
@@ -130,21 +134,6 @@ def get_holiday(date: str, country: str = "IN") -> dict:
     }
 
 
-# --- Unique Super Tool (Demonstrates complex reasoning) ---
-@tool
-def travel_quick_planner(destination_city: str, date: str) -> str:
-    """
-    Provides a quick travel summary for a given city and date, combining weather and holiday checks.
-    This tool should be used when the user asks for a high-level plan or overview.
-    
-    Args:
-        destination_city: The name of the city (e.g., 'Agra', 'Bangalore').
-        date: The date for the check in YYYY-MM-DD format (e.g., '2025-12-25').
-        
-    Returns: A comprehensive summary detailing the weather and any observed holiday.
-    """
-    return f"To generate a quick travel summary for {destination_city} on {date}, the agent will now proceed to use the `weather_forecast`(to forecast upto3 days only),`Search tool (if needed),`budget_context`and `get_holiday` tools in sequence."
-
 
 @tool
 def budget_context_search(city_name: str, item_category: str = 'daily budget per person') -> str:
@@ -163,3 +152,193 @@ def budget_context_search(city_name: str, item_category: str = 'daily budget per
     query = f"Average cost of {item_category} in {city_name} in Indian rupees"
     search_result = search_tool(query)
     return f"Cost context for {city_name} ({item_category}): {search_result}"
+
+
+
+@tool
+def safety_risk_radar(city: str) -> dict:
+    """
+    Provides a consolidated safety and risk assessment for any Indian city.
+    Uses live search + weather alerts + regional risk checks.
+    
+    Key Outputs:
+    - Crime trend summary
+    - Flood/landslide warnings
+    """
+
+    # -------------------- 1. Crime Trend Summary --------------------
+    crime_query = f"latest crime trends and safety situation in {city} India 2025"
+    crime_info = search_tool(crime_query)
+
+    # -------------------- 2. Flood / Landslide Risk (Uttarakhand-specific) --------------------
+    terrain_query = f"flood and landslide risk level in {city} India"
+    terrain_info = search_tool(terrain_query)
+
+    # -------------------- Consolidated Risk Output --------------------
+    output = {
+        "city": city,
+        "crime_trends": crime_info,
+        "terrain_risk": terrain_info
+    }
+
+    return output
+
+
+
+
+
+## new tool
+
+@tool
+def foursquare_places(city: str, query: str = "restaurants", radius_m: int = 2000, limit: int = 10) -> dict:
+    """
+    Search Foursquare for places in a given city using a simple category keyword.
+
+    Notes:
+    - `city` must be a real city name (e.g., Delhi, Mumbai).
+    - `query` must be a single word category like: restaurants, cafes, hotels, bars.
+    - Returns places ONLY (no photos).
+
+    Args:
+        city: City name.
+        query: One-word place type.
+        radius_m: Search radius in meters.
+        limit: Number of results.
+
+    Returns:
+        Dictionary with: city coords, result count, and list of places.
+    """
+
+    SERVICE_KEY = "NPJOVO4FXFIY5AM2FRBC1JC450B0KBKHGJRDGSCFRILLHRTF"
+    API_VERSION = "2025-06-17"
+
+    # Step 1: Convert city name → coordinates
+    geo = requests.get(
+        "https://nominatim.openstreetmap.org/search",
+        params={"q": city, "format": "json", "limit": 1},
+        headers={"User-Agent": "ThinkMate-Agent"}
+    ).json()
+
+    if not geo:
+        return {"error": f"City '{city}' not found"}
+
+    lat, lon = geo[0]["lat"], geo[0]["lon"]
+
+    # Step 2: Foursquare search (NO photo fields)
+    url = "https://places-api.foursquare.com/places/search"
+    headers = {
+        "Authorization": f"Bearer {SERVICE_KEY}",
+        "X-Places-Api-Version": API_VERSION,
+        "Accept": "application/json"
+    }
+
+    params = {
+        "ll": f"{lat},{lon}",
+        "query": query,
+        "radius": radius_m,
+        "limit": limit
+    }
+
+    res = requests.get(url, headers=headers, params=params).json()
+    places = res.get("results", [])
+
+    results = []
+    for place in places:
+        results.append({
+            "name": place.get("name"),
+            "address": place.get("location", {}).get("formatted_address"),
+            "distance_m": place.get("distance"),
+            "categories": [c.get("name") for c in place.get("categories", [])],
+            "fsq_place_id": place.get("fsq_place_id")
+        })
+
+    # Save for follow-up queries (get_place_id_by_index, etc.)
+    try:
+        import streamlit as st
+        st.session_state.last_places = results
+    except:
+        pass
+
+    return {
+        "city": city,
+        "coords": {"lat": lat, "lon": lon},
+        "results_count": len(results),
+        "results": results
+    }
+
+
+    
+
+## photo tool
+
+@tool
+def city_photos(city: str, count: int = 5) -> list:
+    """
+    Fetches high-quality city images using Unsplash.
+    Use this tool to display destination visuals during trip planning.
+    
+    When a user asks for photos of any city, destination, or place,
+    you MUST call the `city_photos` tool immediately.
+
+    Args:
+        city: City name (e.g., Delhi, Mumbai).
+        count: Number of images to return.
+
+    Returns:
+        A list of image URLs (regular size).
+    """
+    key = st.secrets["UNSPLASH_ACCESS_KEY"]
+    url = "https://api.unsplash.com/search/photos"
+    params = {"query": city, "per_page": count, "client_id": key}
+
+    res = requests.get(url, params=params).json()
+    photos = [p["urls"]["regular"] for p in res.get("results", [])]
+
+    return {"type": "photos", "urls": photos}
+
+
+
+
+
+# --- Unique Super Tool (Demonstrates complex reasoning) ---
+@tool
+def full_trip_planner(city: str, start_date: str, end_date: str, budget: int = 50000) -> str:
+    """
+    Use this tool when the user requests a COMPLETE trip plan that includes:
+    - weather
+    - holidays
+    - safety
+    - budget
+    - places to visit
+    - photos
+
+    This tool does NOT generate the content itself.
+    Instead, it instructs the agent to sequentially use:
+      1. weather_forecast tool
+      2. get_holiday tool
+      3. safety_risk_radar tool
+      4. budget_context_search tool
+      5. foursquare_places tool
+      6. city_photos tool
+
+    The agent MUST perform these calls after this tool is triggered.
+    """
+    return f"""
+    Start full trip planning for:
+    City: {city}
+    Dates: {start_date} to {end_date}
+    Budget: {budget}
+
+    Now perform these steps in order:
+    1. Call weather_forecast tool(city)
+    2. Call get_holiday tool(start_date)
+    3. Call safety_risk_radar tool(city)
+    4. Call budget_context_search tool(city)
+    5. Call foursquare_places tool(city, 'tourist')
+    6. Call city_photos tool(city)
+
+    Then summarize all tool results beautifully.
+    """
+
+
+
