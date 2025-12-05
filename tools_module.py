@@ -209,7 +209,7 @@ def foursquare_places(city: str, query: str = "restaurants", radius_m: int = 200
         Dictionary with: city coords, result count, and list of places.
     """
 
-    SERVICE_KEY = "NPJOVO4FXFIY5AM2FRBC1JC450B0KBKHGJRDGSCFRILLHRTF"
+    SERVICE_KEY = st.secrets["SERVICE_KEY"]
     API_VERSION = "2025-06-17"
 
     # Step 1: Convert city name → coordinates
